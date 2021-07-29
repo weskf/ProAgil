@@ -9,7 +9,7 @@ import { NavComponent } from './nav/nav.component';
 import { FormsModule } from '@angular/forms';
 
 @NgModule({
-  declarations: [		
+  declarations: [			
     AppComponent,
       EventosComponent,
       NavComponent
