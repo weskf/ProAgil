@@ -9,7 +9,7 @@ using ProAgil.Repository;
 namespace ProAgil.Repository.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20210801213227_init")]
+    [Migration("20210806133418_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -39,7 +39,7 @@ namespace ProAgil.Repository.Migrations
                     b.Property<int>("QtdPessoas")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Telefoen")
+                    b.Property<string>("Telefone")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Tema")
@@ -151,7 +151,7 @@ namespace ProAgil.Repository.Migrations
 
             modelBuilder.Entity("ProAgil.Domain.Lote", b =>
                 {
-                    b.HasOne("ProAgil.Domain.Evento", "Evento")
+                    b.HasOne("ProAgil.Domain.Evento", null)
                         .WithMany("Lotes")
                         .HasForeignKey("EventoId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -175,7 +175,7 @@ namespace ProAgil.Repository.Migrations
 
             modelBuilder.Entity("ProAgil.Domain.RedeSocial", b =>
                 {
-                    b.HasOne("ProAgil.Domain.Evento", "Evento")
+                    b.HasOne("ProAgil.Domain.Evento", null)
                         .WithMany("RedesSociais")
                         .HasForeignKey("EventoId");
 

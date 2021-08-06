@@ -18,7 +18,7 @@ namespace ProAgil.Repository.Migrations
                     Tema = table.Column<string>(nullable: true),
                     QtdPessoas = table.Column<int>(nullable: false),
                     ImagemUrl = table.Column<string>(nullable: true),
-                    Telefoen = table.Column<string>(nullable: true),
+                    Telefone = table.Column<string>(nullable: true),
                     Email = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
