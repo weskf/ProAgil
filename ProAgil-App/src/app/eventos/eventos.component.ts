@@ -21,7 +21,7 @@ export class EventosComponent implements OnInit {
     local: new FormControl(),
     dataEvento: new FormControl(),
     qtdPessoas: new FormControl(),
-    imagemURL: new FormControl(),
+    imagemUrl: new FormControl(),
     telefone: new FormControl(),
     email: new FormControl(),
   });
@@ -131,7 +131,7 @@ export class EventosComponent implements OnInit {
       local: ['', Validators.required],
       dataEvento: ['', Validators.required],
       qtdPessoas: ['', [Validators.required, Validators.max(120000)]],
-      imagemURL: ['', Validators.required],
+      imagemUrl: ['', Validators.required],
       telefone:['', Validators.required],
       email:['', [Validators.required, Validators.email]]
     });
