@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace ProAgil.API.Dtos
 {
     public class EventoDto
