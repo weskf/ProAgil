@@ -6,6 +6,7 @@ import { EventoService } from '../_services/evento.service';
 import { ptBrLocale } from 'ngx-bootstrap/locale';
 import { BsLocaleService} from 'ngx-bootstrap/datepicker';
 import { defineLocale } from 'ngx-bootstrap/chronos';
+import { templateJitUrl } from '@angular/compiler';
 defineLocale('pt-br', ptBrLocale);
 
 @Component({
@@ -19,7 +20,7 @@ export class EventosComponent implements OnInit {
     tema: new FormControl(),
     local: new FormControl(),
     dataEvento: new FormControl(),
-    qtdPessoa: new FormControl(),
+    qtdPessoas: new FormControl(),
     imagemURL: new FormControl(),
     telefone: new FormControl(),
     email: new FormControl(),
@@ -31,7 +32,9 @@ export class EventosComponent implements OnInit {
   imagemLargura = 50;
   imagemMargem = 2;
   mostrarImagem = false;
-  
+  modoSalvar = 'Post';
+  bodyDeletarEvento = '';
+
   constructor(
     private eventoService: EventoService
   , private modalService: BsModalService
@@ -57,6 +60,7 @@ export class EventosComponent implements OnInit {
   }
 
   openModal(template: any){
+    this.eventoForm.reset();
     template.show(template);
   }  
 
@@ -64,7 +68,61 @@ export class EventosComponent implements OnInit {
     this.mostrarImagem = !this.mostrarImagem;
   }
 
-  salvarAlteracao(){
+  editarEvento(evento: Evento, template: any){
+    this.modoSalvar = 'Put';
+    this.openModal(template);
+    this.evento = evento;
+    this.eventoForm.patchValue(evento);    
+  }
+
+  novoEvento(template: any){
+    this.modoSalvar = 'Post';
+    this.openModal(template);
+  }
+
+  excluirEvento(evento: Evento, template: any){
+    this.openModal(template);
+    this.evento = evento;
+    this.bodyDeletarEvento = `Tem certeza que deseja excluir o evento: ${evento.tema} , Código: ${evento.id} ?`;
+  }
+
+  confirmeDelete(template: any) {
+    this.eventoService.deleteEvento(this.evento.id).subscribe(
+      () => {
+          template.hide();
+          this.getEventos();
+        }, error => {
+          console.log(error);
+        }
+    );
+  }
+  
+  SalvarAlteracao(template: any){
+    if(this.eventoForm.valid){
+      if(this.modoSalvar == 'Post'){
+        this.evento = Object.assign({}, this.eventoForm.value);
+        this.eventoService.postEvento(this.evento).subscribe(
+          (novoEvento: Evento) => {
+            console.log(novoEvento);
+            template.hide();
+            this.getEventos();
+          }, error => {
+            console.log(error);
+          }
+        );
+      }else {
+        this.evento = Object.assign({id: this.evento.id}, this.eventoForm.value);
+        this.eventoService.putEvento(this.evento).subscribe(
+          () => {
+            template.hide();
+            this.getEventos();
+          }, error => {
+            console.log(error);
+          }
+        );
+      }
+      
+    }
   }
 
   public validation() {
@@ -72,7 +130,7 @@ export class EventosComponent implements OnInit {
       tema: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(50)]],
       local: ['', Validators.required],
       dataEvento: ['', Validators.required],
-      qtdPessoa: ['', [Validators.required, Validators.max(120000)]],
+      qtdPessoas: ['', [Validators.required, Validators.max(120000)]],
       imagemURL: ['', Validators.required],
       telefone:['', Validators.required],
       email:['', [Validators.required, Validators.email]]
@@ -96,5 +154,13 @@ export class EventosComponent implements OnInit {
      }, error => { 
        console.log("erro ao consultar eventos");
       });
+  }
+
+  getEventoById(id: number){
+    this.eventoService.getEventoById(id).subscribe((_evento: Evento)=>{
+      this.evento = _evento;
+    }, error => {
+      console.log("Erro ao consultar o evento");
+    });
   }
 }
