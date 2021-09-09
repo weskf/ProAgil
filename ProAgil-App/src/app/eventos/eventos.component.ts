@@ -7,6 +7,10 @@ import { ptBrLocale } from 'ngx-bootstrap/locale';
 import { BsLocaleService} from 'ngx-bootstrap/datepicker';
 import { defineLocale } from 'ngx-bootstrap/chronos';
 import { templateJitUrl } from '@angular/compiler';
+import { ToastrService } from 'ngx-toastr';
+import { environment } from 'src/environments/environment';
+import { i18nMetaToJSDoc } from '@angular/compiler/src/render3/view/i18n/meta';
+
 defineLocale('pt-br', ptBrLocale);
 
 @Component({
@@ -16,6 +20,8 @@ defineLocale('pt-br', ptBrLocale);
 })
 export class EventosComponent implements OnInit {
 
+  titulo = "Eventos";
+  
   eventoForm = new FormGroup({
     tema: new FormControl(),
     local: new FormControl(),
@@ -23,7 +29,7 @@ export class EventosComponent implements OnInit {
     qtdPessoas: new FormControl(),
     imagemUrl: new FormControl(),
     telefone: new FormControl(),
-    email: new FormControl(),
+    email: new FormControl(),    
   });
 
   eventosFiltrados!: Evento[];
@@ -34,12 +40,17 @@ export class EventosComponent implements OnInit {
   mostrarImagem = false;
   modoSalvar = 'Post';
   bodyDeletarEvento = '';
+  dataEvento: string;
+  file: File;
+  fileNameToUpdate: string;
+  dataAtual: string;
 
   constructor(
     private eventoService: EventoService
   , private modalService: BsModalService
   , private fb: FormBuilder
-  , private localService: BsLocaleService) {
+  , private localService: BsLocaleService
+  , private toastr: ToastrService) {
     this.localService.use('pt-br');  
     this.validation();  
   }
@@ -71,8 +82,10 @@ export class EventosComponent implements OnInit {
   editarEvento(evento: Evento, template: any){
     this.modoSalvar = 'Put';
     this.openModal(template);
-    this.evento = evento;
-    this.eventoForm.patchValue(evento);    
+    this.evento = Object.assign({}, evento);
+    this.fileNameToUpdate = evento.imagemUrl.toString();
+    this.evento.imagemUrl = '';
+    this.eventoForm.patchValue(this.evento);    
   }
 
   novoEvento(template: any){
@@ -91,32 +104,69 @@ export class EventosComponent implements OnInit {
       () => {
           template.hide();
           this.getEventos();
+          this.toastr.success('Deletado com sucesso');
         }, error => {
+          this.toastr.error('Erro ao tentar deletar.')
           console.log(error);
         }
     );
   }
   
+  uploadImagem(){
+    if(this.modoSalvar == 'Post'){
+      const nomeArquivo = this.evento.imagemUrl.split('\\', 3);
+      this.evento.imagemUrl = nomeArquivo[2];
+      
+      this.eventoService.postUpload(this.file, nomeArquivo[2])
+      .subscribe(
+        () => {
+          this.dataAtual = new Date().getMilliseconds().toString();
+          this.getEventos()
+        }
+      );
+    }else {
+      this.evento.imagemUrl = this.fileNameToUpdate;
+      this.eventoService.postUpload(this.file, this.fileNameToUpdate)
+      .subscribe(
+        () => {
+          this.dataAtual = new Date().getMilliseconds().toString();
+          this.getEventos()
+        }
+      );
+    }
+    
+  }
+
   SalvarAlteracao(template: any){
     if(this.eventoForm.valid){
       if(this.modoSalvar == 'Post'){
         this.evento = Object.assign({}, this.eventoForm.value);
+        
+        this.uploadImagem();
+
         this.eventoService.postEvento(this.evento).subscribe(
           (novoEvento: Evento) => {
             console.log(novoEvento);
             template.hide();
             this.getEventos();
+            this.toastr.success('Salvo com sucesso');
           }, error => {
+            this.toastr.error(`Erro ao Salvar: ${error}`);
             console.log(error);
           }
         );
       }else {
         this.evento = Object.assign({id: this.evento.id}, this.eventoForm.value);
+        
+        this.uploadImagem();
+
         this.eventoService.putEvento(this.evento).subscribe(
           () => {
             template.hide();
             this.getEventos();
+            this.toastr.success('Editado com sucesso');
           }, error => {
+            this.toastr.error(`Erro ao alterar: ${error}`);
             console.log(error);
           }
         );
@@ -152,7 +202,7 @@ export class EventosComponent implements OnInit {
       this.eventosFiltrados = this.eventos;
        console.log(_eventos);
      }, error => { 
-       console.log("erro ao consultar eventos");
+        this.toastr.error(`Erro ao consultar eventos: ${error}`);
       });
   }
 
@@ -162,5 +212,12 @@ export class EventosComponent implements OnInit {
     }, error => {
       console.log("Erro ao consultar o evento");
     });
+  }
+
+  onFileChange(event){
+    const reader = new FileReader();
+    if(event.target.files && event.target.files.length){
+      this.file = event.target.files; 
+    }
   }
 }
