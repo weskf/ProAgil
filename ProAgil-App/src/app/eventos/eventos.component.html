@@ -96,9 +96,9 @@
             <div class="form-group col-md-12">
               <label>Tema</label>
               <input type="text" class="form-control" formControlName="tema" 
-              [ngClass]="{'is-invalid': eventoForm.controls.tema.errors && eventoForm.controls.tema.touched}" placeholder="Insira o tema">
+                [ngClass]="{'is-invalid': eventoForm.controls.tema.errors && eventoForm.controls.tema.touched}" placeholder="Insira o tema">
               <div *ngIf="eventoForm.controls.tema.errors?.required" class="invalid-feedback">
-                Tema é obrigatório 
+                Tema obrigatório 
               </div>  
               <div *ngIf="eventoForm.controls.tema.errors?.minlength" class="invalid-feedback">
                 Mínimo 4 caracteres   

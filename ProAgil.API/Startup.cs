@@ -49,13 +49,11 @@ namespace ProAgil.API
                 opt.Password.RequireLowercase = false; 
                 opt.Password.RequireUppercase = false;
                 opt.Password.RequiredLength = 4;
-            }).AddEntityFrameworkStores<Context>();
-
-
-             builder = new IdentityBuilder(builder.UserType, typeof(Role), builder.Services);
-             builder.AddSignInManager<SignInManager<User>>();
-             builder.AddRoleValidator<RoleValidator<Role>>();
-             //builder.AddRoleValidator<RoleManager<Role>>();
+            })
+            .AddRoles<Role>()
+            .AddDefaultTokenProviders()
+            .AddSignInManager<SignInManager<User>>()
+            .AddEntityFrameworkStores<Context>();
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options => 
@@ -81,7 +79,7 @@ namespace ProAgil.API
                 .AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling =
                  Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
-            services.AddControllers();
+            //services.AddControllers();
             
             services.AddScoped<IProAgilRepository, ProAgilRepository>();
             services.AddAutoMapper(typeof(Startup));
