@@ -7,7 +7,7 @@ import { map } from 'rxjs/operators';
 })
 export class AuthService {
 
-  baseURL = 'http://localhost:5000/api/user';  
+  baseURL = 'http://localhost:5000/api/user/';  
   jwtHelper = new JwtHelperService();
   decodeToken: any;
 
@@ -27,11 +27,13 @@ export class AuthService {
   }
 
   register(model: any){
-      return this.http.post(`${this.baseURL}login`, model)
+      return this.http.post(`${this.baseURL}Register`, model)
   }
 
   loggedIn(){
     const token = localStorage.getItem('token');
-    return this.jwtHelper.isTokenExpired(token);
+    const tokenExpired = !this.jwtHelper.isTokenExpired(token);
+    console.log(tokenExpired);
+    return tokenExpired;
   }
 }
